@@ -29,8 +29,44 @@ namespace Day5SupplyStacks
 
             var stackPlatform = sut.Build(lines);
 
-            stackPlatform.ToString().Should().Be("N,Z|D,C,M|P");
+            stackPlatform.ToString().Should().Be("NZ|DCM|P");
+            stackPlatform.Commands.Should().BeEquivalentTo(new List<Command>
+            {
+                new(count:1, from: 2, to: 1),
+                new(count:3, from: 1, to: 3),
+                new(count:2, from: 2, to: 1),
+                new(count:1, from: 1, to: 2),
+            });
         }
+
+        [Fact]
+        public void ShouldMoveCrates()
+        {
+            var sut = new StackPlatformBuilder();
+
+            var lines = File.ReadAllLines(Files.TestInput1);
+
+            var stackPlatform = sut.Build(lines);
+
+            stackPlatform.ExecuteCommands();
+            stackPlatform.ToString().Should().Be("C|M|ZNDP");
+            
+        }
+
+        [Fact]
+        public void GetAnswer()
+        {
+            var sut = new StackPlatformBuilder();
+
+            var lines = File.ReadAllLines(Files.RealInput);
+
+            var stackPlatform = sut.Build(lines);
+
+            stackPlatform.ExecuteCommands();
+
+            Console.WriteLine($"TopLayer: {stackPlatform.TopLayer}");
+        }
+
     }
 
     public class StackPlatformBuilder
@@ -39,6 +75,7 @@ namespace Day5SupplyStacks
         {
             var p = new StackPlatform();
 
+            // stacks
             var stackCount = (lines.First().Length + 1) / 4;
 
             Enumerable.Range(0, stackCount).ToList().ForEach(i =>  p.Stacks.Add(new CrateStack()));
@@ -59,6 +96,22 @@ namespace Day5SupplyStacks
                 Console.WriteLine();
             }
 
+            p.Commands = lines.Where(line => line.Contains("move")).Select(line =>
+            {
+                var csv =line
+                    .Replace("move ", "")
+                    .Replace(" from ", ",")
+                    .Replace(" to ", ",");
+
+                var parts = csv.Split(',');
+
+                return new Command(
+                    count: int.Parse(parts[0]),
+                    from: int.Parse(parts[1]),
+                    to: int.Parse(parts[2]));
+
+            }).ToList();
+            
             return p;
         }
     }
@@ -66,10 +119,16 @@ namespace Day5SupplyStacks
     public class StackPlatform
     {
         public List<CrateStack> Stacks { get; }
+        public List<Command> Commands { get; set; }
 
         public StackPlatform()
         {
             Stacks = new List<CrateStack>();
+        }
+
+        public string TopLayer
+        {
+            get => String.Join("", Stacks.Select(s => s.Crates.Peek().Id));
         }
 
         public override string ToString()
@@ -80,6 +139,38 @@ namespace Day5SupplyStacks
         public void AddCrate(int stackIndex, char id)
         {
             Stacks[stackIndex].Crates.Push(new Crate(id));
+        }
+
+        public void ExecuteCommands()
+        {
+            foreach (var command in Commands)
+            {
+                for (int i = 0; i < command.Count; i++)
+                {
+                    Console.WriteLine(command);
+
+                    var crate = Stacks[command.From-1].Crates.Pop();
+                    Stacks[command.To-1].Crates.Push(crate);
+                }
+            }
+        }
+    }
+
+    public class Command
+    {
+        public int From { get; }
+        public int To { get; }
+        public int Count { get; }
+        public Command(int from, int to, int count)
+        {
+            From = from;
+            To = to;
+            Count = count;
+        }
+
+        public override string ToString()
+        {
+            return $"move {Count} from {From} to {To}";
         }
     }
 
@@ -93,7 +184,7 @@ namespace Day5SupplyStacks
         }
         public override string ToString()
         {
-            return String.Join(",", Crates.Select(c => c.Id));
+            return String.Join("", Crates.Select(c => c.Id));
         }
     }
 

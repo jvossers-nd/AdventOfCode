@@ -17,7 +17,17 @@ namespace Day6TuningTrouble
         {
             var sut = new Scanner();
 
-            int position = sut.Scan(File.ReadAllLines("input.txt").First());
+            int position = sut.Scan(File.ReadAllLines("input.txt").First(), 4);
+
+            Console.WriteLine(position);
+        }
+
+        [Fact]
+        public void FindSolutionPart2()
+        {
+            var sut = new Scanner();
+
+            int position = sut.Scan(File.ReadAllLines("input.txt").First(), 14);
 
             Console.WriteLine(position);
         }
@@ -31,7 +41,22 @@ namespace Day6TuningTrouble
         {
             var sut = new Scanner();
 
-            int position = sut.Scan(subject);
+            int position = sut.Scan(subject, 4);
+
+            position.Should().Be(expectedPosition);
+        }
+
+        [Theory]
+        [InlineData("mjqjpqmgbljsphdztnvjfqwrcgsmlb", 19)]
+        [InlineData("bvwbjplbgvbhsrlpgdmjqwftvncz", 23)]
+        [InlineData("nppdvjthqldpwncqszvftbrmjlhg", 23)]
+        [InlineData("nznrnfrfntjfmvfwmzdfjlvtqnbhcprsg", 29)]
+        [InlineData("zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw", 26)]
+        public void ShouldFindMesssagePosition(string subject, int expectedPosition)
+        {
+            var sut = new Scanner();
+
+            int position = sut.Scan(subject, 14);
 
             position.Should().Be(expectedPosition);
         }
@@ -39,7 +64,7 @@ namespace Day6TuningTrouble
 
     public class Scanner
     {
-        public int Scan(string subject)
+        public int Scan(string subject, int signalLength)
         {
             int counter = 0;
             var buffer = new List<char>();
@@ -54,7 +79,7 @@ namespace Day6TuningTrouble
                     buffer.RemoveAt(0);
                 }
 
-                if (buffer.Count > 3)
+                if (buffer.Count > signalLength-1)
                 {
                     return counter;
                 }

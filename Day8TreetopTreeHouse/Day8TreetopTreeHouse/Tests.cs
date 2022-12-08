@@ -1,5 +1,4 @@
 ﻿using FluentAssertions;
-using System.Reflection;
 using Xunit;
 
 namespace Day8TreetopTreeHouse
@@ -30,6 +29,21 @@ namespace Day8TreetopTreeHouse
             var trees = forest.Trees.Where(t => t.IsVisible).ToList();
 
             Console.WriteLine(trees.Count);
+        }
+
+        [Fact]
+        public void SolutionPart2()
+        {
+            var lines = File.ReadAllLines("input.txt");
+
+            var sut = new ForestBuilder();
+
+            var forest = sut.FromGrid(lines);
+
+            var maxScore = forest.Trees.Max(t => t.ScenicScore);
+
+            // You guessed 807576. too high
+            Console.WriteLine(maxScore);
         }
 
         [Fact]
@@ -143,13 +157,50 @@ namespace Day8TreetopTreeHouse
 
         public bool IsVisible => CalculateVisibility();
 
-        private bool CalculateVisibility()
+        public int ScenicScore => ScenicScoreTop * ScenicScoreRight * ScenicScoreBottom * ScenicScoreLeft;
+        public int ScenicScoreTop => CalculateScenicScore(Orientation.Top);
+        public int ScenicScoreRight =>  CalculateScenicScore(Orientation.Right);
+        public int ScenicScoreBottom =>  CalculateScenicScore(Orientation.Bottom);
+        public int ScenicScoreLeft =>  CalculateScenicScore(Orientation.Left);
+
+        private int CalculateScenicScore(Orientation orientation)
         {
-            if (X == 1 && Y == 1)
+            var candidates = new List<Tree>();
+            int score = 0;
+
+            switch (orientation)
             {
-                var b = true;
+                case Orientation.Top:
+                    candidates = Forest.Trees.Where(t => t.X == X && t.Y < Y).OrderByDescending(t => t.Y).ToList();
+                    break;
+                case Orientation.Right:
+                    candidates = Forest.Trees.Where(t => t.X > X && t.Y == Y).OrderBy(t => t.X).ToList();
+                    break;
+                case Orientation.Bottom:
+                    candidates = Forest.Trees.Where(t => t.X == X && t.Y > Y).OrderBy(t => t.Y).ToList();
+                    break;
+                case Orientation.Left:
+                    candidates = Forest.Trees.Where(t => t.X < X && t.Y == Y).OrderByDescending(t => t.X).ToList();
+                    break;
+                default:
+                    break;
             }
 
+            foreach (var tree in candidates)
+            {
+                score++;
+
+                if (tree.Height >= Height)
+                {
+                    break;
+                }
+            }
+
+            return score;
+        }
+
+        private bool CalculateVisibility()
+        {
             bool onEdgeTop = OnEdge(Orientation.Top);
             bool onEdgeRight = OnEdge(Orientation.Right);
             bool onEdgeBottom = OnEdge(Orientation.Bottom);

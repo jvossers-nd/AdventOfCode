@@ -1,33 +1,35 @@
 ﻿namespace Day9RopeBridge;
 
+public class Knot
+{
+    public List<Visit> VisitHistory { get; set; }
+    public Knot()
+    {
+        VisitHistory = new List<Visit>();
+        RegisterVisit(new Visit(0, 0));
+    }
+
+    public Position Position => VisitHistory.Last().Position;
+
+    public void RegisterVisit(Visit visit)
+    {
+        VisitHistory.Add(visit);
+    }
+}
+
+
 public class Rope
 {
-    public Rope()
+    public List<Knot> Knots { get; set; }
+
+    public Rope(int knotCount)
     {
-        HeadVisitHistory = new List<Visit>();
-        RegisterHeadVisit(new Visit(0, 0));
+        Knots = new List<Knot>();
+        Enumerable.Range(1, knotCount).ToList().ForEach(i => Knots.Add(new Knot()));
 
-        TailVisitHistory = new List<Visit>();
-        RegisterTailVisit(new Visit(0, 0));
     }
-
-    public Position HeadPosition => HeadVisitHistory.Last().Position;
-    public Position TailPosition => TailVisitHistory.Last().Position;
-
-    public int SolutionPart1
-    {
-        get => TailVisitHistory.Select(v => v.Position.ToString()).Distinct().Count();
-    }
-
-    private void RegisterHeadVisit(Visit visit)
-    {
-        HeadVisitHistory.Add(visit);
-    }
-
-    private void RegisterTailVisit(Visit visit)
-    {
-        TailVisitHistory.Add(visit);
-    }
+    
+    public int Solution => Knots.Last().VisitHistory.Select(v => v.Position.ToString()).Distinct().Count();
 
     public void ExecuteCommands(List<Command> commands)
     {
@@ -54,36 +56,39 @@ public class Rope
                     continue;
                 }
 
-                RegisterHeadVisit(new Visit(HeadPosition.Offset(headDeltaX, headDeltaY)));
+                Knots[0].RegisterVisit(new Visit(Knots[0].Position.Offset(headDeltaX, headDeltaY)));
 
-                if (!TailPosition.InRange(HeadPosition))
+                for (int j = 1; j < Knots.Count; j++)
                 {
-                    // head fell out of range
-                    // where there to do to? we have 8 options
-                    var candidatePositions = new List<Position>
+                    // follow 
+                    var tail = Knots[j];
+                    var head = Knots[j-1];
+
+                    if (!tail.Position.InRange(head.Position))
                     {
-                        new(TailPosition.X+0, TailPosition.Y+1),
-                        new(TailPosition.X+1, TailPosition.Y+1),
-                        new(TailPosition.X+1, TailPosition.Y+0),
-                        new(TailPosition.X+1, TailPosition.Y-1),
-                        new(TailPosition.X+0, TailPosition.Y-1),
-                        new(TailPosition.X-1, TailPosition.Y-1),
-                        new(TailPosition.X-1, TailPosition.Y+0),
-                        new(TailPosition.X-1, TailPosition.Y+1),
-                    };
+                        // head fell out of range
+                        // where there to do to? we have 8 options
 
-                    var newPosition = candidatePositions
-                        .Where(p => HeadPosition.InRange(p))
-                        .MinBy(p => HeadPosition.DistanceTotal(p));
+                        var candidatePositions = new List<Position>
+                        {
+                            new(tail.Position.X+0, tail.Position.Y+1),
+                            new(tail.Position.X+1, tail.Position.Y+1),
+                            new(tail.Position.X+1, tail.Position.Y+0),
+                            new(tail.Position.X+1, tail.Position.Y-1),
+                            new(tail.Position.X+0, tail.Position.Y-1),
+                            new(tail.Position.X-1, tail.Position.Y-1),
+                            new(tail.Position.X-1, tail.Position.Y+0),
+                            new(tail.Position.X-1, tail.Position.Y+1),
+                        };
 
-                    RegisterTailVisit(new Visit(newPosition));
+                        var newPosition = candidatePositions
+                            .Where(p => head.Position.InRange(p))
+                            .MinBy(p => head.Position.DistanceTotal(p));
+
+                        tail.RegisterVisit(new Visit(newPosition));
+                    }
                 }
             }
         }
     }
-
-    public List<Visit> HeadVisitHistory { get; set; }
-    public List<Visit> TailVisitHistory { get; set; }
-
-
 }

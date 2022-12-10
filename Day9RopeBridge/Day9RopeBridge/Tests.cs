@@ -44,12 +44,24 @@ namespace Day9RopeBridge
         {
             var commands = new CommandFactory().Create(File.ReadAllLines("input.txt"));
 
-            var sut = new Rope();
+            var sut = new Rope(2);
 
             sut.ExecuteCommands(commands);
 
-            Console.WriteLine(sut.SolutionPart1); // 
-            sut.SolutionPart1.Should().Be(6057); // regression test added after finding solution
+            Console.WriteLine(sut.Solution); // 
+            sut.Solution.Should().Be(6057); // regression test added after finding solution
+        }
+
+        [Fact]
+        public void SolutionPart2()
+        {
+            var commands = new CommandFactory().Create(File.ReadAllLines("input.txt"));
+
+            var sut = new Rope(10);
+
+            sut.ExecuteCommands(commands);
+
+            Console.WriteLine(sut.Solution);
         }
 
 
@@ -58,11 +70,11 @@ namespace Day9RopeBridge
         {
             var commands = new CommandFactory().Create(File.ReadAllLines("input.test.txt"));
 
-            var sut = new Rope();
+            var sut = new Rope(2);
 
             sut.ExecuteCommands(commands);
 
-            sut.HeadVisitHistory.Should().BeEquivalentTo(new List<Visit>()
+            sut.Knots[0].VisitHistory.Should().BeEquivalentTo(new List<Visit>()
             {
                 // starting position
                 new Visit(0, 0),
@@ -100,7 +112,7 @@ namespace Day9RopeBridge
                 new Visit(2, 2)
             });
 
-            sut.TailVisitHistory.Should().BeEquivalentTo(new List<Visit>()
+            sut.Knots[1].VisitHistory.Should().BeEquivalentTo(new List<Visit>()
             {
                 // starting position
                 new Visit(0, 0),
@@ -127,7 +139,7 @@ namespace Day9RopeBridge
                 // R 2
             });
 
-            sut.SolutionPart1.Should().Be(13);
+            sut.Solution.Should().Be(13);
         }
     }
 }

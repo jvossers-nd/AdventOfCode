@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33122.133
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Day10CathodeRayTube", "Day10CathodeRayTube\Day10CathodeRayTube.csproj", "{C9A411F2-0A35-4DE0-A8FE-6F925BAB1535}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C9A411F2-0A35-4DE0-A8FE-6F925BAB1535}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C9A411F2-0A35-4DE0-A8FE-6F925BAB1535}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C9A411F2-0A35-4DE0-A8FE-6F925BAB1535}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C9A411F2-0A35-4DE0-A8FE-6F925BAB1535}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {ECCD9B9F-B108-4E3D-AC8F-2F682E92B2B5}
+	EndGlobalSection
+EndGlobal

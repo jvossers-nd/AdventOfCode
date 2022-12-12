@@ -1,4 +1,5 @@
-﻿using FluentAssertions;
+﻿using System.Text;
+using FluentAssertions;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -91,6 +92,54 @@ namespace Day10CathodeRayTube
 
             _testOutputHelper.WriteLine(sum.ToString());
         }
+
+        [Fact]
+        public void ShouldRenderFromCycleHistory()
+        {
+            var instructions = new Parser().Parse(File.ReadAllLines("input.test.txt")).ToList();
+
+            var sut = new Cpu();
+            sut.ProcessInstructions(instructions);
+
+            var renderedLines = sut.RenderFromCycleHistory();
+
+            renderedLines.Should().BeEquivalentTo(new List<string>()
+            {
+                "##..##..##..##..##..##..##..##..##..##..",
+                "###...###...###...###...###...###...###.",
+                "####....####....####....####....####....",
+                "#####.....#####.....#####.....#####.....",
+                "######......######......######......####",
+                "#######.......#######.......#######....."
+            });
+        }
+
+        [Fact]
+        public void SolutionPart2()
+        {
+            // foreach cycle decide pixel on or off
+            // based on whether current cycle overlaps with position of sprite
+
+            var instructions = new Parser().Parse(File.ReadAllLines("input.txt")).ToList();
+
+            var sut = new Cpu();
+            sut.ProcessInstructions(instructions);
+
+            var renderedLines = sut.RenderFromCycleHistory();
+
+            foreach (var renderedLine in renderedLines)
+            {
+                _testOutputHelper.WriteLine(renderedLine);
+            }
+
+            //###..#....####.####.#..#.#....###..###..
+            //#..#.#....#....#....#..#.#....#..#.#..#.
+            //#..#.#....###..###..#..#.#....#..#.###..
+            //###..#....#....#....#..#.#....###..#..#.
+            //#....#....#....#....#..#.#....#....#..#.
+            //#....####.####.#.....##..####.#....###..
+
+        }
     }
 
     public class Parser
@@ -134,6 +183,49 @@ namespace Day10CathodeRayTube
             {
                 instruction.Execute(this);
             }
+        }
+
+        public List<string> RenderFromCycleHistory()
+        {
+            int lineCount = 6;
+            var lines = new List<string>();
+            int cycleIndex = 0;
+
+            for (int lineIndex = 0; lineIndex < lineCount; lineIndex++)
+            {
+                StringBuilder sb = new StringBuilder();
+
+                for (int columIndex = 0; columIndex < 40; columIndex++)
+                {
+                    var cycle = CycleHistory[cycleIndex];
+
+                    if (columIndex == cycle.BeforeV || columIndex == cycle.BeforeV + 1 ||
+                        columIndex == cycle.BeforeV - 1)
+                    {
+                        sb.Append("#");
+                    }
+                    else
+                    {
+                        sb.Append(".");
+                    }
+                    
+                    cycleIndex++;
+                }
+
+                lines.Add(sb.ToString());
+            }
+
+            return lines;
+
+            //return new List<string>()
+            //{
+            //    "##..##..##..##..##..##..##..##..##..##..",
+            //    "###...###...###...###...###...###...###.",
+            //    "####....####....####....####....####....",
+            //    "#####.....#####.....#####.....#####.....",
+            //    "######......######......######......####",
+            //    "#######.......#######.......#######....."
+            //};
         }
     }
 

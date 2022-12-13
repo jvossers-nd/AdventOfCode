@@ -13,7 +13,7 @@ public class Parser
             var items = monkeyChunk[1]
                 .Replace("  Starting items: ", string.Empty)
                 .Split(", ")
-                .Select(item => int.Parse(item))
+                .Select(item => long.Parse(item))
                 .ToList();
 
             var operation = monkeyChunk[2]

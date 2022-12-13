@@ -1,12 +1,19 @@
 ﻿using FluentAssertions;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
-using Microsoft.CodeAnalysis.Scripting;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Day11MonkeyInTheMiddle
 {
     public class Tests
     {
+        private readonly ITestOutputHelper _testOutputHelper;
+
+        public Tests(ITestOutputHelper testOutputHelper)
+        {
+            _testOutputHelper = testOutputHelper;
+        }
+
         [Fact]
         public void ShouldReadLines()
         {
@@ -35,7 +42,26 @@ namespace Day11MonkeyInTheMiddle
                 .OrderByDescending(count => count)
                 .ToList();
             
-            Console.WriteLine(top2[0] * top2[1]);
+            _testOutputHelper.WriteLine((top2[0] * top2[1]).ToString());
+        }
+
+        [Fact]
+        public async Task SolutionPart2()
+        {
+            var lines = File.ReadAllLines("input.txt");
+
+            var monkeys = new Parser().Parse(lines);
+
+            var game = new Game(monkeys);
+
+            await game.PlayRounds(10000, reduceWorryLevel: false);
+
+            var top2 = game.Monkeys
+                .Select(m => (long)m.Inspections.Count)
+                .OrderByDescending(count => count)
+                .ToList();
+
+            _testOutputHelper.WriteLine((top2[0] * top2[1]).ToString());
         }
 
         [Fact]
@@ -52,7 +78,7 @@ namespace Day11MonkeyInTheMiddle
         [Fact]
         public async Task ShouldApplyOperation()
         {
-            var monkey = new Monkey("old + 6", 19, 2, 0, new List<int>() {10});
+            var monkey = new Monkey("old + 6", 19, 2, 0, new List<long>() {10});
 
             await monkey.ApplyOperation(); // add 6 to 10, divide by 3, round down
 
@@ -70,10 +96,10 @@ namespace Day11MonkeyInTheMiddle
 
             monkeys.Should().BeEquivalentTo(new List<Monkey>()
             {
-                new Monkey("old * 19", 23, 2,3, new List<int>() { 79, 98 }),
-                new Monkey("old + 6", 19, 2,0, new List<int>() { 54, 65, 75, 74 }),
-                new Monkey("old * old", 13, 1, 3, new List<int>() { 79, 60, 97 }),
-                new Monkey("old + 3", 17, 0,1, new List<int>() { 74 }),
+                new Monkey("old * 19", 23, 2,3, new List<long>() { 79, 98 }),
+                new Monkey("old + 6", 19, 2,0, new List<long>() { 54, 65, 75, 74 }),
+                new Monkey("old * old", 13, 1, 3, new List<long>() { 79, 60, 97 }),
+                new Monkey("old + 3", 17, 0,1, new List<long>() { 74 }),
             });
         }
 
@@ -95,7 +121,7 @@ namespace Day11MonkeyInTheMiddle
         }
 
         [Fact]
-        public async Task ShouldPlayRoundsWithoutReducingWorryLevel()
+        public async Task ShouldPlayRoundsWithoutReducingWorryLevel20Rounds()
         {
             var lines = File.ReadAllLines("input.test.txt");
             
@@ -110,57 +136,39 @@ namespace Day11MonkeyInTheMiddle
             game.Monkeys[2].Inspections.Count.Should().Be(8);
             game.Monkeys[3].Inspections.Count.Should().Be(103);
         }
-    }
 
-    public class Game
-    {
-        public readonly List<Monkey> Monkeys;
-
-        public Game(List<Monkey> monkeys)
+        [Fact]
+        public async Task ShouldPlayRoundsWithoutReducingWorryLevel1000rounds()
         {
-            Monkeys = monkeys;
+            var lines = File.ReadAllLines("input.test.txt");
+
+            var monkeys = new Parser().Parse(lines);
+
+            var game = new Game(monkeys);
+
+            await game.PlayRounds(1000, false);
+
+            game.Monkeys[0].Inspections.Count.Should().Be(5204);
+            game.Monkeys[1].Inspections.Count.Should().Be(4792);
+            game.Monkeys[2].Inspections.Count.Should().Be(199);
+            game.Monkeys[3].Inspections.Count.Should().Be(5192);
         }
 
-        public async Task PlayRounds(int roundCount, bool reduceWorryLevel = true)
+        [Fact]
+        public async Task ShouldPlayRoundsWithoutReducingWorryLevel10000rounds()
         {
-            for (int i = 0; i < roundCount; i++)
-            {
-                Console.WriteLine($"===== Round {i+1} =====");
+            var lines = File.ReadAllLines("input.test.txt");
 
-                int monkeyIndex = 0;
+            var monkeys = new Parser().Parse(lines);
 
-                foreach (var monkey in Monkeys)
-                {
-                    if (!monkey.Items.Any())
-                    {
-                        Console.WriteLine($"[{monkeyIndex}] does not have any items.");
-                    }
+            var game = new Game(monkeys);
 
-                    while (monkey.Items.Any())
-                    {
-                        monkey.Inspections.Add(new Inspection());
-                        string inspectionsMessage = $"inspection count increased to {monkey.Inspections.Count}";
+            await game.PlayRounds(10000, false);
 
-                        await monkey.ApplyOperation(reduceWorryLevel);
-
-                        if (monkey.Items[0] % monkey.DivisibleBy == 0)
-                        {
-                            Console.WriteLine($"[{monkeyIndex}] passing new value {monkey.Items[0]} to [{monkey.TrueMonkeyIndex}] because {monkey.Items[0]} is divisible by {monkey.DivisibleBy} ({inspectionsMessage}).");
-                            Monkeys[monkey.TrueMonkeyIndex].Items.Add(monkey.Items[0]);
-                        }
-                        else
-                        {
-                            Console.WriteLine($"[{monkeyIndex}] passing new value {monkey.Items[0]} to [{monkey.TrueMonkeyIndex}] because {monkey.Items[0]} is NOT divisible by {monkey.DivisibleBy} ({inspectionsMessage}).");
-                            Monkeys[monkey.FalseMonkeyIndex].Items.Add(monkey.Items[0]);
-                        }
-
-                        monkey.Items.RemoveAt(0);
-                    }
-
-                    Console.WriteLine();
-                    monkeyIndex++;
-                }
-            }
+            game.Monkeys[0].Inspections.Count.Should().Be(52166);
+            game.Monkeys[1].Inspections.Count.Should().Be(47830);
+            game.Monkeys[2].Inspections.Count.Should().Be(1938);
+            game.Monkeys[3].Inspections.Count.Should().Be(52013);
         }
     }
 }

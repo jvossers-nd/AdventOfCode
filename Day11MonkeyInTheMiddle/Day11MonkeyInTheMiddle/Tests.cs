@@ -93,6 +93,23 @@ namespace Day11MonkeyInTheMiddle
             game.Monkeys[2].Inspections.Count.Should().Be(7);
             game.Monkeys[3].Inspections.Count.Should().Be(105);
         }
+
+        [Fact]
+        public async Task ShouldPlayRoundsWithoutReducingWorryLevel()
+        {
+            var lines = File.ReadAllLines("input.test.txt");
+            
+            var monkeys = new Parser().Parse(lines);
+
+            var game = new Game(monkeys);
+
+            await game.PlayRounds(20, false);
+
+            game.Monkeys[0].Inspections.Count.Should().Be(99);
+            game.Monkeys[1].Inspections.Count.Should().Be(97);
+            game.Monkeys[2].Inspections.Count.Should().Be(8);
+            game.Monkeys[3].Inspections.Count.Should().Be(103);
+        }
     }
 
     public class Game
@@ -104,29 +121,44 @@ namespace Day11MonkeyInTheMiddle
             Monkeys = monkeys;
         }
 
-        public async Task PlayRounds(int roundCount)
+        public async Task PlayRounds(int roundCount, bool reduceWorryLevel = true)
         {
             for (int i = 0; i < roundCount; i++)
             {
+                Console.WriteLine($"===== Round {i+1} =====");
+
+                int monkeyIndex = 0;
+
                 foreach (var monkey in Monkeys)
                 {
+                    if (!monkey.Items.Any())
+                    {
+                        Console.WriteLine($"[{monkeyIndex}] does not have any items.");
+                    }
+
                     while (monkey.Items.Any())
                     {
                         monkey.Inspections.Add(new Inspection());
+                        string inspectionsMessage = $"inspection count increased to {monkey.Inspections.Count}";
 
-                        await monkey.ApplyOperation();
+                        await monkey.ApplyOperation(reduceWorryLevel);
 
-                        if (monkey.Items.First() % monkey.DivisibleBy == 0)
+                        if (monkey.Items[0] % monkey.DivisibleBy == 0)
                         {
+                            Console.WriteLine($"[{monkeyIndex}] passing new value {monkey.Items[0]} to [{monkey.TrueMonkeyIndex}] because {monkey.Items[0]} is divisible by {monkey.DivisibleBy} ({inspectionsMessage}).");
                             Monkeys[monkey.TrueMonkeyIndex].Items.Add(monkey.Items[0]);
                         }
                         else
                         {
+                            Console.WriteLine($"[{monkeyIndex}] passing new value {monkey.Items[0]} to [{monkey.TrueMonkeyIndex}] because {monkey.Items[0]} is NOT divisible by {monkey.DivisibleBy} ({inspectionsMessage}).");
                             Monkeys[monkey.FalseMonkeyIndex].Items.Add(monkey.Items[0]);
                         }
 
                         monkey.Items.RemoveAt(0);
                     }
+
+                    Console.WriteLine();
+                    monkeyIndex++;
                 }
             }
         }

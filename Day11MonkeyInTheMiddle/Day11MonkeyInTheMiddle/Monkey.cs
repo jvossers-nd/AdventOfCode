@@ -19,7 +19,6 @@ public class Monkey
         TrueMonkeyIndex = trueMonkeyIndex;
         FalseMonkeyIndex = falseMonkeyIndex;
         DivisibleBy = divisibleBy;
-
         Inspections = new List<Inspection>();
     }
 
@@ -35,12 +34,14 @@ public class Monkey
         return _operation;
     }
 
-    public async Task ApplyOperation()
+    public async Task ApplyOperation(bool reduceWorryLevel = true)
     {
         var op = await GetOperation();
 
         Items[0] = op(Items[0]);
-        Items[0] = (int)Math.Floor((double)Items[0] / 3);
+
+        if(reduceWorryLevel)
+            Items[0] = (int)Math.Floor((double)Items[0] / 3);
     }
 }
 

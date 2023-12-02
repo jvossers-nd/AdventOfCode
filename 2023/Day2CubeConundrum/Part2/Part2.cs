@@ -8,10 +8,66 @@ namespace Part2
     {
         private readonly string _text;
 
+        private readonly List<Draw> _draws;
+        public int GameId { get; }
+
         public Line(string text)
         {
             _text = text;
+            _draws = ExtractDraws(_text).ToList();
+            GameId = ExtractGameId(_text);
         }
+        public CubeSet GetSmallestPossibleCubeSet()
+        {
+            return new CubeSet()
+            {
+                Red = _draws.Max(d => d.Red),
+                Green = _draws.Max(d => d.Green),
+                Blue = _draws.Max(d => d.Blue)
+            };
+        }
+
+        private int ExtractGameId(string text) => int.Parse(text.Split(':')[0].Replace("Game ", string.Empty));
+
+        private IEnumerable<Draw> ExtractDraws(string text)
+        {
+            //  3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green
+            foreach (var drawText in text.Split(':')[1].Split(';'))
+            {
+                var draw = new Draw();
+
+                // 1 red, 2 green, 6 blue
+                foreach (var colourText in drawText.Split(','))
+                {
+                    int count = int.Parse(colourText.Trim().Split(' ')[0]);
+
+                    if (colourText.Contains("red"))
+                        draw.Red = count;
+                    if (colourText.Contains("green"))
+                        draw.Green = count;
+                    if (colourText.Contains("blue"))
+                        draw.Blue = count;
+                }
+
+                yield return draw;
+            }
+        }
+    }
+
+    public class CubeSet
+    {
+        public int Red { get; set; }
+        public int Green { get; set; }
+        public int Blue { get; set; }
+        public int Power => Red * Green * Blue;
+    }
+
+
+    public class Draw
+    {
+        public int Red { get; set; }
+        public int Green { get; set; }
+        public int Blue { get; set; }
     }
 
     public class Solution
@@ -23,10 +79,7 @@ namespace Part2
             _lines = lines;
         }
 
-        public string Solve()
-        {
-            return string.Empty;
-        }
+        public int Solve() => _lines.Select(line => line.GetSmallestPossibleCubeSet()).Select(set => set.Power).Sum();
     }
 
     public class Tests
@@ -41,7 +94,17 @@ namespace Part2
         [Fact]
         public void Test()
         {
-            
+            var solution = new Solution(
+                new List<Line>()
+                {
+                    new Line("Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green"), // 1 
+                    new Line("Game 2: 1 blue, 2 green; 3 green, 4 blue, 1 red; 1 green, 1 blue"), // 2
+                    new Line("Game 3: 8 green, 6 blue, 20 red; 5 blue, 4 red, 13 green; 5 green, 1 red"),
+                    new Line("Game 4: 1 green, 3 red, 6 blue; 3 green, 6 red; 3 green, 15 blue, 14 red"),
+                    new Line("Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green") // 5
+                });
+
+            solution.Solve().Should().Be(2286);
         }
 
         [Fact]
@@ -55,7 +118,7 @@ namespace Part2
         {
             var solution = new Solution(File.ReadAllLines("input.txt").Select(line => new Line(line)).ToList());
 
-            _output.WriteLine(solution.Solve());
+            _output.WriteLine(solution.Solve().ToString()); // 49710
         }
     }
 }

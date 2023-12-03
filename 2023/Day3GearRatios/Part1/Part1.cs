@@ -83,9 +83,39 @@ namespace Part1
             }
         }
 
-        public string Solve()
+        public bool IsNumberAdjacentToSymbol(Number number)
         {
-            return string.Empty;
+            int x = number.X;
+            int y = number.Y;
+
+            foreach (var _ in number.Digits)
+            {
+                // N
+                if (Symbols.Any(s => s.X == x && s.Y == y-1)) return true;
+                // NE
+                if (Symbols.Any(s => s.X == x+1 && s.Y == y-1)) return true;
+                // E
+                if (Symbols.Any(s => s.X == x+1 && s.Y == y)) return true;
+                // SE
+                if (Symbols.Any(s => s.X == x+1 && s.Y == y+1)) return true;
+                // S
+                if (Symbols.Any(s => s.X == x && s.Y == y+1)) return true;
+                // SW
+                if (Symbols.Any(s => s.X == x-1 && s.Y == y+1)) return true;
+                // W
+                if (Symbols.Any(s => s.X == x-1 && s.Y == y)) return true;
+                // NW
+                if (Symbols.Any(s => s.X == x-1 && s.Y == y-1)) return true;
+
+                x++;
+            }
+
+            return false;
+        }
+        
+        public int Solve()
+        {
+            return Numbers.Where(IsNumberAdjacentToSymbol).Select(n => n.Value).Sum();
         }
     }
 
@@ -102,6 +132,7 @@ namespace Part1
         public int Length { get; set; }
         public int X { get; set; }
         public int Y { get; set; }
+        public IEnumerable<int> Digits => Value.ToString().Select(c => int.Parse(c.ToString()));
     }
 
     public class Tests
@@ -163,51 +194,61 @@ namespace Part1
             solution.Numbers[0].X.Should().Be(0);
             solution.Numbers[0].Y.Should().Be(0);
             solution.Numbers[0].Length.Should().Be(3);
+            solution.IsNumberAdjacentToSymbol(solution.Numbers[0]).Should().BeTrue();
 
             solution.Numbers[1].Value.Should().Be(114);
             solution.Numbers[1].X.Should().Be(5);
             solution.Numbers[1].Y.Should().Be(0);
             solution.Numbers[1].Length.Should().Be(3);
+            solution.IsNumberAdjacentToSymbol(solution.Numbers[1]).Should().BeFalse();
 
             solution.Numbers[2].Value.Should().Be(35);
             solution.Numbers[2].X.Should().Be(2);
             solution.Numbers[2].Y.Should().Be(2);
             solution.Numbers[2].Length.Should().Be(2);
+            solution.IsNumberAdjacentToSymbol(solution.Numbers[2]).Should().BeTrue();
 
             solution.Numbers[3].Value.Should().Be(633);
             solution.Numbers[3].X.Should().Be(6);
             solution.Numbers[3].Y.Should().Be(2);
             solution.Numbers[3].Length.Should().Be(3);
+            solution.IsNumberAdjacentToSymbol(solution.Numbers[3]).Should().BeTrue();
 
             solution.Numbers[4].Value.Should().Be(617);
             solution.Numbers[4].X.Should().Be(0);
             solution.Numbers[4].Y.Should().Be(4);
             solution.Numbers[4].Length.Should().Be(3);
+            solution.IsNumberAdjacentToSymbol(solution.Numbers[4]).Should().BeTrue();
 
             solution.Numbers[5].Value.Should().Be(58);
             solution.Numbers[5].X.Should().Be(7);
             solution.Numbers[5].Y.Should().Be(5);
             solution.Numbers[5].Length.Should().Be(2);
+            solution.IsNumberAdjacentToSymbol(solution.Numbers[5]).Should().BeFalse();
             
             solution.Numbers[6].Value.Should().Be(592);
             solution.Numbers[6].X.Should().Be(2);
             solution.Numbers[6].Y.Should().Be(6);
             solution.Numbers[6].Length.Should().Be(3);
+            solution.IsNumberAdjacentToSymbol(solution.Numbers[6]).Should().BeTrue();
 
             solution.Numbers[7].Value.Should().Be(755);
             solution.Numbers[7].X.Should().Be(6);
             solution.Numbers[7].Y.Should().Be(7);
             solution.Numbers[7].Length.Should().Be(3);
+            solution.IsNumberAdjacentToSymbol(solution.Numbers[7]).Should().BeTrue();
 
             solution.Numbers[8].Value.Should().Be(664);
             solution.Numbers[8].X.Should().Be(1);
             solution.Numbers[8].Y.Should().Be(9);
             solution.Numbers[8].Length.Should().Be(3);
+            solution.IsNumberAdjacentToSymbol(solution.Numbers[8]).Should().BeTrue();
 
             solution.Numbers[9].Value.Should().Be(598);
             solution.Numbers[9].X.Should().Be(5);
             solution.Numbers[9].Y.Should().Be(9);
             solution.Numbers[9].Length.Should().Be(3);
+            solution.IsNumberAdjacentToSymbol(solution.Numbers[9]).Should().BeTrue();
         }
 
         [Fact]
@@ -221,7 +262,7 @@ namespace Part1
         {
             var solution = new Solution(File.ReadAllLines("input.txt").Select(line => new Line(line)).ToList());
 
-            _output.WriteLine(solution.Solve());
+            _output.WriteLine(solution.Solve().ToString()); // 538046
         }
     }
 }

@@ -84,8 +84,6 @@ namespace Part2
 
         public IEnumerable<Number> NumbersAdjacentToGear(Symbol symbol)
         {
-            var allDigits = this.Numbers.SelectMany(n => n.Digits).ToList();
-            
             int x = symbol.X;
             int y = symbol.Y;
 

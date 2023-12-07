@@ -200,26 +200,26 @@ namespace Part1
         }
         
         [Theory]
-        [InlineData("KKKKK 1", HandClassification.FiveOfAKind)]
-        [InlineData("KKKKQ 1", HandClassification.FourOfAKind)]
-        [InlineData("KKKQQ 1", HandClassification.FullHouse)]
-        [InlineData("KKKQJ 1", HandClassification.ThreeOfAKind)]
-        [InlineData("KKQQJ 1", HandClassification.TwoPair)]
-        [InlineData("KKQJA 1", HandClassification.OnePair)]
-        [InlineData("2345A 1", HandClassification.HighCard)]
-        [InlineData("2345K 1", HandClassification.HighCard)]
-        [InlineData("2345Q 1", HandClassification.HighCard)]
-        [InlineData("2345J 1", HandClassification.HighCard)]
-        [InlineData("2345T 1", HandClassification.HighCard)]
-        [InlineData("23459 1", HandClassification.HighCard)]
-        [InlineData("23458 1", HandClassification.HighCard)]
-        [InlineData("23457 1", HandClassification.HighCard)]
-        [InlineData("23456 1", HandClassification.HighCard)]
+        [InlineData("KKKKK", HandClassification.FiveOfAKind)]
+        [InlineData("KKKKQ", HandClassification.FourOfAKind)]
+        [InlineData("KKKQQ", HandClassification.FullHouse)]
+        [InlineData("KKKQJ", HandClassification.ThreeOfAKind)]
+        [InlineData("KKQQJ", HandClassification.TwoPair)]
+        [InlineData("KKQJA", HandClassification.OnePair)]
+        [InlineData("2345A", HandClassification.HighCard)]
+        [InlineData("2345K", HandClassification.HighCard)]
+        [InlineData("2345Q", HandClassification.HighCard)]
+        [InlineData("2345J", HandClassification.HighCard)]
+        [InlineData("2345T", HandClassification.HighCard)]
+        [InlineData("23459", HandClassification.HighCard)]
+        [InlineData("23458", HandClassification.HighCard)]
+        [InlineData("23457", HandClassification.HighCard)]
+        [InlineData("23456", HandClassification.HighCard)]
         public void TestHandType(string handText, HandClassification expectedClassification)
         {
             var solution = new Solution(new List<Hand>()
             {
-                new Hand(handText)
+                new Hand($"{handText} 1")
             });
 
             solution.Hands[0].Strength.Should().Be((int)expectedClassification);

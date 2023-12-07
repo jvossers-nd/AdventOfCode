@@ -6,13 +6,13 @@ namespace Part1
 {
     public enum HandClassification
     {
-        FiveOfAKind,
-        FourOfAKind,
-        FullHouse,
-        ThreeOfAKind,
-        TwoPair,
-        OnePair,
-        HighCard
+        FiveOfAKind = 100,
+        FourOfAKind = 90,
+        FullHouse = 80,
+        ThreeOfAKind = 70,
+        TwoPair = 60,
+        OnePair = 50,
+        HighCard = 40
     }
 
     public class Hand
@@ -22,17 +22,8 @@ namespace Part1
         public int Winnings => Rank * Bid;
         public int Rank { get; set; }
         public string CardText => _text.Trim().Split(" ")[0];
-        public int Strength => Classification switch
-        {
-            HandClassification.FiveOfAKind => 100,
-            HandClassification.FourOfAKind => 90,
-            HandClassification.FullHouse => 80,
-            HandClassification.ThreeOfAKind => 70,
-            HandClassification.TwoPair => 60,
-            HandClassification.OnePair => 50,
-            HandClassification.HighCard => 40,
-            _ => throw new ArgumentOutOfRangeException()
-        };
+
+        public int Strength => (int) Classification;
 
         public List<Card> Cards { get; set; }
 
@@ -207,45 +198,31 @@ namespace Part1
             //'A' => 'M',
             new Hand(hand).SecondaryStrength.Should().Be(secondaryStrength);
         }
-
+        
         [Theory]
-        [InlineData("KKKKK 1", 100)]
-        [InlineData("KKKKQ 1", 90)]
-        [InlineData("KKKQQ 1", 80)]
-        [InlineData("KKKQJ 1", 70)]
-        [InlineData("KKQQJ 1", 60)]
-        [InlineData("KKQJA 1", 50)]
-        [InlineData("2345A 1", 40)]
-        [InlineData("2345K 1", 40)]
-        [InlineData("2345Q 1", 40)]
-        [InlineData("2345J 1", 40)]
-        [InlineData("2345T 1", 40)]
-        [InlineData("23459 1", 40)]
-        [InlineData("23458 1", 40)]
-        [InlineData("23457 1", 40)]
-        [InlineData("23456 1", 40)]
-        public void TestHandType(string handText, int expectedStrength)
+        [InlineData("KKKKK 1", HandClassification.FiveOfAKind)]
+        [InlineData("KKKKQ 1", HandClassification.FourOfAKind)]
+        [InlineData("KKKQQ 1", HandClassification.FullHouse)]
+        [InlineData("KKKQJ 1", HandClassification.ThreeOfAKind)]
+        [InlineData("KKQQJ 1", HandClassification.TwoPair)]
+        [InlineData("KKQJA 1", HandClassification.OnePair)]
+        [InlineData("2345A 1", HandClassification.HighCard)]
+        [InlineData("2345K 1", HandClassification.HighCard)]
+        [InlineData("2345Q 1", HandClassification.HighCard)]
+        [InlineData("2345J 1", HandClassification.HighCard)]
+        [InlineData("2345T 1", HandClassification.HighCard)]
+        [InlineData("23459 1", HandClassification.HighCard)]
+        [InlineData("23458 1", HandClassification.HighCard)]
+        [InlineData("23457 1", HandClassification.HighCard)]
+        [InlineData("23456 1", HandClassification.HighCard)]
+        public void TestHandType(string handText, HandClassification expectedClassification)
         {
-            //if (IsFiveOfAKind(groups)) return 100;
-            //if (IsFourOfAKind(groups)) return 90;
-            //if (IsFullHouse(groups)) return 80;
-            //if (IsThreeOfAKind(groups)) return 70;
-            //if (IsTwoPair(groups)) return 60;
-            //if (IsOnePair(groups)) return 50;
-
-            //'A' => 14,
-            //'K' => 13,
-            //'Q' => 12,
-            //'J' => 11,
-            //'T' => 10,
-            //_ => int.Parse(Char.ToString())
-
             var solution = new Solution(new List<Hand>()
             {
                 new Hand(handText)
             });
 
-            solution.Hands[0].Strength.Should().Be(expectedStrength);
+            solution.Hands[0].Strength.Should().Be((int)expectedClassification);
         }
 
         [Fact]
@@ -268,11 +245,11 @@ namespace Part1
             solution.Hands[0].Cards[3].StrengthSignature.Should().Be('B');
             solution.Hands[0].Cards[4].StrengthSignature.Should().Be('L');
 
-            solution.Hands[0].Strength.Should().Be(50); // 32T3K IsOnePair
-            solution.Hands[1].Strength.Should().Be(70); // T55J5 IsThreeOfAKind
-            solution.Hands[2].Strength.Should().Be(60); // KK677 IsTwoPair
-            solution.Hands[3].Strength.Should().Be(60); // KTJJT IsTwoPair
-            solution.Hands[4].Strength.Should().Be(70); // QQQJA IsThreeOfAKind
+            solution.Hands[0].Strength.Should().Be((int)HandClassification.OnePair); // 32T3K IsOnePair
+            solution.Hands[1].Strength.Should().Be((int)HandClassification.ThreeOfAKind); // T55J5 IsThreeOfAKind
+            solution.Hands[2].Strength.Should().Be((int)HandClassification.TwoPair); // KK677 IsTwoPair
+            solution.Hands[3].Strength.Should().Be((int)HandClassification.TwoPair); // KTJJT IsTwoPair
+            solution.Hands[4].Strength.Should().Be((int)HandClassification.ThreeOfAKind); // QQQJA IsThreeOfAKind
             
             var answer = solution.Solve();
 

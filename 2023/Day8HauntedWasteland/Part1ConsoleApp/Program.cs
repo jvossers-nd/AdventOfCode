@@ -6,7 +6,7 @@ namespace Part1ConsoleApp
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello, World!");
+            Console.WriteLine("Solving...");
 
             var solution = new Solution(File.ReadAllLines("input.txt").Select(line => new Line(line)).ToList());
 
